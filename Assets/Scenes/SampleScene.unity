@@ -268,7 +268,7 @@ MonoBehaviour:
   verticalAngleRange: {x: 0, y: 0}
   parallaxAngle: {x: 0, y: 0}
   seedFlythroughs: 1
-  flythroughName: flythrough-test
+  flythroughName: test-agent-2
   agentHeight: 1.5
 --- !u!4 &743955941
 Transform:

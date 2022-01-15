@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+
+
 public class SimpleAgent : Agent
 {
+
+
+    int screenshot_counter = 0;
+    const int FRAME_COUNT = 9;
     public Screenshoter screenshot;
     private NavMeshAgent navMeshAgent;
     private List<List<Vector3>> regions = new List<List<Vector3>>();
@@ -21,8 +27,13 @@ public class SimpleAgent : Agent
     private float camTimer;
     private bool isRotating = false;
     // Update is called once per frame
+
+
+
     void Update()
     {
+
+
         if (!isRotating)
         {
             if (agentDone == true)
@@ -64,6 +75,9 @@ public class SimpleAgent : Agent
                 }
             }
 
+
+
+
             if (transform.position == corners[0])
             {
                 movement = interpolateCorners(corners);
@@ -71,9 +85,10 @@ public class SimpleAgent : Agent
                 navMeshAgent.enabled = false;
                 StartCoroutine(interpolateCornerRotations(movement));
                 distanceTraveled = 0;
+
             }
             else
-			{
+            {
                 Vector3 eulerRotation = Camera.main.gameObject.transform.parent.localEulerAngles;
                 Camera.main.gameObject.transform.parent.localRotation = Quaternion.Euler(eulerRotation.x, eulerRotation.y, 0);
                 transform.position = transform.position + movement;
@@ -83,8 +98,18 @@ public class SimpleAgent : Agent
                 {
                     transform.position = corners[0];
                 }
-                screenshot.CaptureScreenshot(Camera.main, OL_GLOBAL_INFO.SCREENSHOT_WIDTH, OL_GLOBAL_INFO.SCREENSHOT_HEIGHT);
+
+                if (screenshot_counter > FRAME_COUNT)
+                {
+                    screenshot.CaptureScreenshot(Camera.main, OL_GLOBAL_INFO.SCREENSHOT_WIDTH, OL_GLOBAL_INFO.SCREENSHOT_HEIGHT);
+                    screenshot_counter = 0;
+                }
+                else
+                {
+                    screenshot_counter++;
+                }
             }
+
             /*float angleRatio = (float)(distanceTraveled / cornerDistance);
             Quaternion q = Quaternion.Slerp(prevRotation, nextRotation, angleRatio);
             if (isNaN(q))
@@ -93,7 +118,7 @@ public class SimpleAgent : Agent
 
             }
             else
-			{
+            {
                 Camera.main.gameObject.transform.parent.localRotation = q;
             }*/
 
@@ -137,7 +162,7 @@ public class SimpleAgent : Agent
         startPos = transform.position;
         elapsedTime = 0.0f;
         navMeshAgent.enabled = true;
-	    GameObject prev = GameObject.Find("rotFix");
+        GameObject prev = GameObject.Find("rotFix");
         if (prev != null)
             localPos = prev.transform.localPosition;
         GameObject rotFix = new GameObject("rotFix");
@@ -147,7 +172,7 @@ public class SimpleAgent : Agent
         rotFix.transform.localPosition = localPos;
         Camera.main.gameObject.transform.localPosition = Vector3.zero;
         Camera.main.transform.localEulerAngles = new Vector3(OL_GLOBAL_INFO.PARALLAX_ANGLE[1], OL_GLOBAL_INFO.PARALLAX_ANGLE[0], 0);
-	Destroy(prev);
+        Destroy(prev);
 
         //StartCoroutine(SetCameraLookAngle());
 
@@ -204,7 +229,8 @@ public class SimpleAgent : Agent
             for (int i = 0; i < pointsPerLevel; i += 0)
             {
                 float rx = UnityEngine.Random.Range(bboxlist[l].Item1.x, bboxlist[l].Item2.x);
-                float ry = UnityEngine.Random.Range(bboxlist[l].Item1.y, bboxlist[l].Item2.y);
+                //float ry = UnityEngine.Random.Range(bboxlist[l].Item1.y, bboxlist[l].Item2.y);
+                float ry = bboxlist[l].Item1.y;
                 float rz = UnityEngine.Random.Range(bboxlist[l].Item1.z, bboxlist[l].Item2.z);
                 Vector3 randomPoint = new Vector3(rx, ry, rz);
                 NavMeshHit hit;
@@ -314,7 +340,14 @@ public class SimpleAgent : Agent
             Quaternion q = Quaternion.RotateTowards(Camera.main.gameObject.transform.parent.rotation, nextRotation, OL_GLOBAL_INFO.ROTATION_INCREMENT_DEGREES);
             q.eulerAngles = new Vector3(q.eulerAngles.x, q.eulerAngles.y, 0);
             Camera.main.gameObject.transform.parent.rotation = q;
-            screenshot.CaptureScreenshot(Camera.main, OL_GLOBAL_INFO.SCREENSHOT_WIDTH, OL_GLOBAL_INFO.SCREENSHOT_HEIGHT);
+
+            if (screenshot_counter > FRAME_COUNT)
+            {
+                screenshot.CaptureScreenshot(Camera.main, OL_GLOBAL_INFO.SCREENSHOT_WIDTH, OL_GLOBAL_INFO.SCREENSHOT_HEIGHT);
+                screenshot_counter = 0;
+            }
+            else screenshot_counter++;
+
             yield return 0;
         }
         navMeshAgent.enabled = true;
